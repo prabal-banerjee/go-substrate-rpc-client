@@ -25,12 +25,30 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 )
 
+type Tuple struct {
+	Start  U32
+	Offset U32
+}
+
+type DataLookup struct {
+	Size  U32     `json:"size"`
+	Index []Tuple `json:"index"`
+}
+
+type KateExtrinsicRoot struct {
+	Hash       Hash `json:"hash"`
+	Commitment []U8 `json:"commitment"`
+	Rows       U16  `json:"rows"`
+	Cols       U16  `json:"cols"`
+}
+
 type Header struct {
-	ParentHash     Hash        `json:"parentHash"`
-	Number         BlockNumber `json:"number"`
-	StateRoot      Hash        `json:"stateRoot"`
-	ExtrinsicsRoot Hash        `json:"extrinsicsRoot"`
-	Digest         Digest      `json:"digest"`
+	ParentHash     Hash              `json:"parentHash"`
+	Number         BlockNumber       `json:"number"`
+	StateRoot      Hash              `json:"stateRoot"`
+	ExtrinsicsRoot KateExtrinsicRoot `json:"extrinsicsRoot"`
+	Digest         Digest            `json:"digest"`
+	AppDataLookup  DataLookup        `json:"appDataLookup"`
 }
 
 type BlockNumber U32
