@@ -33,6 +33,7 @@ type ExtrinsicPayloadV3 struct {
 	Era         ExtrinsicEra // extra via system::CheckEra
 	Nonce       UCompact     // extra via system::CheckNonce (Compact<Index> where Index is u32)
 	Tip         UCompact     // extra via balances::TakeFees (Compact<Balance> where Balance is u128)
+	AppID       U32          // Avail specific AppID
 	SpecVersion U32          // additional via system::CheckVersion
 	GenesisHash Hash         // additional via system::CheckGenesis
 	BlockHash   Hash         // additional via system::CheckEra
@@ -72,6 +73,11 @@ func (e ExtrinsicPayloadV3) Encode(encoder scale.Encoder) error {
 		return err
 	}
 
+	err = encoder.Encode(e.AppID)
+	if err != nil {
+		return err
+	}
+
 	err = encoder.Encode(e.SpecVersion)
 	if err != nil {
 		return err
@@ -97,6 +103,7 @@ func (e *ExtrinsicPayloadV3) Decode(decoder scale.Decoder) error {
 
 type ExtrinsicPayloadV4 struct {
 	ExtrinsicPayloadV3
+	AppID              U32
 	TransactionVersion U32
 }
 
@@ -128,6 +135,11 @@ func (e ExtrinsicPayloadV4) Encode(encoder scale.Encoder) error {
 	}
 
 	err = encoder.Encode(e.Tip)
+	if err != nil {
+		return err
+	}
+
+	err = encoder.Encode(e.AppID)
 	if err != nil {
 		return err
 	}
