@@ -22,17 +22,24 @@ import (
 )
 
 // GetBlock returns the header and body of the relay chain block with the given hash
-func (c *Chain) GetBlock(blockHash types.Hash) (*types.SignedBlock, error) {
-	return c.getBlock(&blockHash)
+
+type ExtendedSignedBlock struct {
+	types.SignedBlock
+	ModifiedExtrinsic []byte
+}
+
+func (c *Chain) GetBlock(blockHash types.Hash) (interface{}, error) {
+	return c.getBlock(nil)
 }
 
 // GetBlockLatest returns the header and body of the latest relay chain block
 func (c *Chain) GetBlockLatest() (*types.SignedBlock, error) {
-	return c.getBlock(nil)
+	ret, err := c.getBlock(nil)
+	return ret.(*types.SignedBlock), err
 }
 
-func (c *Chain) getBlock(blockHash *types.Hash) (*types.SignedBlock, error) {
-	var SignedBlock types.SignedBlock
+func (c *Chain) getBlock(blockHash *types.Hash) (interface{}, error) {
+	var SignedBlock interface{}
 	err := client.CallWithBlockHash(c.client, &SignedBlock, "chain_getBlock", blockHash)
 	if err != nil {
 		return nil, err
