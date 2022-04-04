@@ -22,12 +22,6 @@ import (
 )
 
 // GetBlock returns the header and body of the relay chain block with the given hash
-
-type ExtendedSignedBlock struct {
-	types.SignedBlock
-	ModifiedExtrinsic []byte
-}
-
 func (c *Chain) GetBlock(blockHash types.Hash) (interface{}, error) {
 	return c.getBlock(nil)
 }
