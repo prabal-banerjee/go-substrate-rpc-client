@@ -40,6 +40,7 @@ type KateExtrinsicRoot struct {
 	Commitment []U8 `json:"commitment"`
 	Rows       U16  `json:"rows"`
 	Cols       U16  `json:"cols"`
+	DataRoot   H256 `json:"dataRoot"`
 }
 
 type Header struct {
