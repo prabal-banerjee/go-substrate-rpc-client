@@ -25,31 +25,47 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 )
 
+type AppId UCompact
 type Tuple struct {
-	Start  U32
-	Offset U32
+	AppID AppId    `json:"appId"`
+	Start UCompact `json:"start"`
 }
 
 type DataLookup struct {
-	Size  U32     `json:"size"`
-	Index []Tuple `json:"index"`
+	Size  UCompact `json:"size"`
+	Index []Tuple  `json:"index"`
 }
 
-type KateExtrinsicRoot struct {
-	Hash       Hash `json:"hash"`
-	Commitment []U8 `json:"commitment"`
-	Rows       U16  `json:"rows"`
-	Cols       U16  `json:"cols"`
-	DataRoot   H256 `json:"dataRoot"`
+type KateCommitment struct {
+	Hash       Hash     `json:"hash"`
+	Commitment []U8     `json:"commitment"`
+	Rows       UCompact `json:"rows"`
+	Cols       UCompact `json:"cols"`
+}
+
+type V1HeaderExtension struct {
+	Commitment KateCommitment `json:"commitment"`
+	AppLookup  DataLookup     `json:"appLookup"`
+}
+
+type VTHeaderExtension struct {
+	NewField   []U8           `json:"newField"`
+	Commitment KateCommitment `json:"commitment"`
+	AppLookup  DataLookup     `json:"appLookup"`
+}
+
+type HeaderExtension struct {
+	V1 V1HeaderExtension `json:"V1"`
+	VT VTHeaderExtension `json:"VTest"`
 }
 
 type Header struct {
-	ParentHash     Hash              `json:"parentHash"`
-	Number         BlockNumber       `json:"number"`
-	StateRoot      Hash              `json:"stateRoot"`
-	ExtrinsicsRoot KateExtrinsicRoot `json:"extrinsicsRoot"`
-	Digest         Digest            `json:"digest"`
-	AppDataLookup  DataLookup        `json:"appDataLookup"`
+	ParentHash     Hash            `json:"parentHash"`
+	Number         BlockNumber     `json:"number"`
+	StateRoot      Hash            `json:"stateRoot"`
+	ExtrinsicsRoot KateCommitment  `json:"extrinsicsRoot"`
+	Digest         Digest          `json:"digest"`
+	Extension      HeaderExtension `json:"extension"`
 }
 
 type BlockNumber U32
@@ -88,3 +104,73 @@ func (b *BlockNumber) Decode(decoder scale.Decoder) error {
 	*b = BlockNumber(u.Uint64())
 	return err
 }
+
+// type CU16 U16
+
+// func (b *CU16) UnmarshalJSON(bz []byte) error {
+// 	var tmp string
+// 	if err := json.Unmarshal(bz, &tmp); err != nil {
+// 		return err
+// 	}
+
+// 	s := strings.TrimPrefix(tmp, "0x")
+
+// 	p, err := strconv.ParseUint(s, 16, 16)
+// 	*b = CU16(p)
+// 	return err
+// }
+
+// func (b CU16) MarshalJSON() ([]byte, error) {
+// 	s := strconv.FormatUint(uint64(b), 16)
+// 	return json.Marshal(s)
+// }
+
+// // Encode implements encoding for CU16, which just unwraps the bytes of CU16
+// func (b CU16) Encode(encoder scale.Encoder) error {
+// 	return encoder.EncodeUintCompact(*big.NewInt(0).SetUint64(uint64(b)))
+// }
+
+// // Decode implements decoding for CU16, which just wraps the bytes in CU16
+// func (b *CU16) Decode(decoder scale.Decoder) error {
+// 	u, err := decoder.DecodeUintCompact()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	*b = CU16(u.Uint64())
+// 	return err
+// }
+
+// type CU32 U32
+
+// func (b *CU32) UnmarshalJSON(bz []byte) error {
+// 	var tmp string
+// 	if err := json.Unmarshal(bz, &tmp); err != nil {
+// 		return err
+// 	}
+
+// 	s := strings.TrimPrefix(tmp, "0x")
+
+// 	p, err := strconv.ParseUint(s, 16, 32)
+// 	*b = CU32(p)
+// 	return err
+// }
+
+// func (b CU32) MarshalJSON() ([]byte, error) {
+// 	s := strconv.FormatUint(uint64(b), 16)
+// 	return json.Marshal(s)
+// }
+
+// // Encode implements encoding for CU32, which just unwraps the bytes of CU32
+// func (b CU32) Encode(encoder scale.Encoder) error {
+// 	return encoder.EncodeUintCompact(*big.NewInt(0).SetUint64(uint64(b)))
+// }
+
+// // Decode implements decoding for CU32, which just wraps the bytes in CU32
+// func (b *CU32) Decode(decoder scale.Decoder) error {
+// 	u, err := decoder.DecodeUintCompact()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	*b = CU32(u.Uint64())
+// 	return err
+// }
