@@ -141,12 +141,12 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, o SignatureOptions) error
 			Era:         era,
 			Nonce:       o.Nonce,
 			Tip:         o.Tip,
-			AppID:       o.AppID,
 			SpecVersion: o.SpecVersion,
 			GenesisHash: o.GenesisHash,
 			BlockHash:   o.BlockHash,
 		},
 		TransactionVersion: o.TransactionVersion,
+		AppID:       o.AppID,
 	}
 
 	signerPubKey := NewMultiAddressFromAccountID(signer.PublicKey)
