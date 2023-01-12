@@ -57,9 +57,13 @@ type VTHeaderExtension struct {
 	AppLookup  DataLookup     `json:"appLookup"`
 }
 
+type HeaderExtensionEnum struct {
+	V1    *V1HeaderExtension `json:"V1"`
+	VTest *VTHeaderExtension `json:"VTest"`
+}
+
 type HeaderExtension struct {
-	V1    V1HeaderExtension `json:"V1"`
-	VTest VTHeaderExtension `json:"VTest"`
+	Enum *HeaderExtensionEnum
 }
 
 type Header struct {
