@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
 )
 
 var testPeerInfo = PeerInfo{
@@ -31,17 +33,26 @@ var testPeerInfo = PeerInfo{
 }
 
 func TestPeerInfo_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, testPeerInfo)
+	AssertRoundtrip(t, testPeerInfo)
+	AssertRoundTripFuzz[PeerInfo](t, 100)
+	AssertDecodeNilData[PeerInfo](t)
+	AssertEncodeEmptyObj[PeerInfo](t, 42)
 }
 
 func TestPeerInfo_Encode(t *testing.T) {
-	assertEncode(t, []encodingAssert{
-		{testPeerInfo, MustHexDecodeString("0x20616263313233343528736f6d6520726f6c65737b000000abcd000000000000000000000000000000000000000000000000000000000000e514")}, //nolint:lll
+	AssertEncode(t, []EncodingAssert{
+		{
+			testPeerInfo,
+			MustHexDecodeString("0x20616263313233343528736f6d6520726f6c65737b000000abcd00000000000000000000000000000000000000000000000000000000000039050000"),
+		},
 	})
 }
 
 func TestPeerInfo_Decode(t *testing.T) {
-	assertDecode(t, []decodingAssert{
-		{MustHexDecodeString("0x20616263313233343528736f6d6520726f6c65737b000000abcd000000000000000000000000000000000000000000000000000000000000e514"), testPeerInfo}, //nolint:lll
+	AssertDecode(t, []DecodingAssert{
+		{
+			MustHexDecodeString("0x20616263313233343528736f6d6520726f6c65737b000000abcd00000000000000000000000000000000000000000000000000000000000039050000"),
+			testPeerInfo,
+		},
 	})
 }

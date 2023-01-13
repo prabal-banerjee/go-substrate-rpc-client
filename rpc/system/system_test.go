@@ -20,12 +20,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+
 	"github.com/centrifuge/go-substrate-rpc-client/v4/client"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpcmocksrv"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
 
-var system *System
+var testSystem System
 
 func TestMain(m *testing.M) {
 	s := rpcmocksrv.New()
@@ -39,7 +41,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	system = NewSystem(cl)
+	testSystem = NewSystem(cl)
 
 	os.Exit(m.Run())
 }
@@ -92,7 +94,7 @@ var mockSrv = MockSrv{
 	name:         "test-node",
 	networkState: types.NetworkState{PeerID: "my-peer-id"},
 	peers: []types.PeerInfo{{PeerID: "another-peer-id", Roles: "Role", ProtocolVersion: 42,
-		BestHash: types.NewHash(types.MustHexDecodeString("0xabcd")), BestNumber: 420}},
+		BestHash: types.NewHash(codec.MustHexDecodeString("0xabcd")), BestNumber: 420}},
 	properties: types.ChainProperties{IsTokenDecimals: true, AsTokenDecimals: 18,
 		IsTokenSymbol: true, AsTokenSymbol: "GSRPCCOIN"},
 	version: "My version",

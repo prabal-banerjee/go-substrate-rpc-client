@@ -25,6 +25,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/config"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 )
 
 func Example_simpleConnect() {
@@ -132,7 +133,7 @@ func Example_listenToBalanceChange() {
 			}
 
 			var acc types.AccountInfo
-			if err = types.DecodeFromBytes(chng.StorageData, &acc); err != nil {
+			if err = codec.Decode(chng.StorageData, &acc); err != nil {
 				panic(err)
 			}
 
@@ -295,7 +296,7 @@ func Example_displaySystemEvents() {
 		set := <-sub.Chan()
 		// inner loop for the changes within one of those notifications
 		for _, chng := range set.Changes {
-			if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
+			if !codec.Eq(chng.StorageKey, key) || !chng.HasStorageData {
 				// skip, we are only interested in events with content
 				continue
 			}
@@ -365,11 +366,11 @@ func Example_displaySystemEvents() {
 				fmt.Printf("\tSession:NewSession:: (phase=%#v)\n", e.Phase)
 				fmt.Printf("\t\t%v\n", e.SessionIndex)
 			}
-			for _, e := range events.Staking_Reward {
+			for _, e := range events.Staking_Rewarded {
 				fmt.Printf("\tStaking:Reward:: (phase=%#v)\n", e.Phase)
 				fmt.Printf("\t\t%v\n", e.Amount)
 			}
-			for _, e := range events.Staking_Slash {
+			for _, e := range events.Staking_Slashed {
 				fmt.Printf("\tStaking:Slash:: (phase=%#v)\n", e.Phase)
 				fmt.Printf("\t\t%#x%v\n", e.AccountID, e.Balance)
 			}

@@ -17,12 +17,18 @@
 package types_test
 
 import (
+	"bytes"
 	"encoding/binary"
+	"fmt"
 	"testing"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/hash"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
+	fuzz "github.com/google/gofuzz"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,21 +46,43 @@ func TestChecksum(t *testing.T) {
 	assert.Equal(t, ss58d[len(ss58d)-2:], res[:2]) // Verified checksum
 }
 
+var (
+	addressFuzzOpts = []FuzzOpt{
+		WithFuzzFuncs(func(a *Address, c fuzz.Continue) {
+			if c.RandBool() {
+				a.IsAccountID = true
+				c.Fuzz(&a.AsAccountID)
+
+				return
+			}
+
+			a.IsAccountIndex = true
+			c.Fuzz(&a.AsAccountIndex)
+		}),
+	}
+)
+
+func newTestAddress() Address {
+	addr, err := NewAddressFromAccountID(testAccountIDBytes)
+
+	if err != nil {
+		panic(fmt.Errorf("couldn't create test address: %w", err))
+	}
+
+	return addr
+}
+
 func TestAddress_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewAddressFromAccountID([]byte{128, 42}))
-	assertRoundtrip(t, NewAddressFromAccountIndex(421))
+	AssertRoundTripFuzz[Address](t, 100, addressFuzzOpts...)
+	AssertDecodeNilData[Address](t)
+	AssertEncodeEmptyObj[Address](t, 1)
 }
 
 func TestAddress_Encode(t *testing.T) {
-	assertEncode(t, []encodingAssert{
-		{NewAddressFromAccountID([]byte{
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}), []byte{
-			255,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}},
+	AssertEncode(t, []EncodingAssert{
+		{newTestAddress(),
+			MustHexDecodeString("0xff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f0b"),
+		},
 		{NewAddressFromAccountIndex(binary.BigEndian.Uint32([]byte{
 			17, 18, 19, 20,
 		})), []byte{
@@ -72,14 +100,10 @@ func TestAddress_Encode(t *testing.T) {
 func TestAddress_EncodeWithOptions(t *testing.T) {
 	SetSerDeOptions(SerDeOptions{NoPalletIndices: true})
 	defer SetSerDeOptions(SerDeOptions{NoPalletIndices: false})
-	assertEncode(t, []encodingAssert{
-		{NewAddressFromAccountID([]byte{
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}), []byte{
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}},
+	AssertEncode(t, []EncodingAssert{
+		{newTestAddress(),
+			MustHexDecodeString("0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f0b"),
+		},
 		{NewAddressFromAccountIndex(binary.BigEndian.Uint32([]byte{
 			17, 18, 19, 20,
 		})), []byte{
@@ -89,15 +113,10 @@ func TestAddress_EncodeWithOptions(t *testing.T) {
 }
 
 func TestAddress_Decode(t *testing.T) {
-	assertDecode(t, []decodingAssert{
-		{[]byte{
-			255,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}, NewAddressFromAccountID([]byte{
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		})},
+	AssertDecode(t, []DecodingAssert{
+		{MustHexDecodeString("0xff0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f0b"),
+			newTestAddress(),
+		},
 		{[]byte{
 			253, 20, 19, 18, 17, // order is reversed because scale uses little endian
 		}, NewAddressFromAccountIndex(binary.BigEndian.Uint32([]byte{
@@ -110,25 +129,21 @@ func TestAddress_Decode(t *testing.T) {
 		})))},
 		{[]byte{23}, NewAddressFromAccountIndex(uint32(23))},
 	})
+
+	_, err := NewAddressFromHexAccountID("zzz")
+	assert.NotNil(t, err)
+
+	a := new(Address)
+	err = a.Decode(*scale.NewDecoder(bytes.NewReader([]byte{0xfe})))
+	assert.NotNil(t, err)
 }
 
 func TestAddress_DecodeWithOptions(t *testing.T) {
 	SetSerDeOptions(SerDeOptions{NoPalletIndices: true})
 	defer SetSerDeOptions(SerDeOptions{NoPalletIndices: false})
-	assertDecode(t, []decodingAssert{
-		{[]byte{
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}, NewAddressFromAccountID([]byte{
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		})},
-		{[]byte{
-			254, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		}, NewAddressFromAccountID([]byte{
-			254, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-			1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8,
-		})},
+	AssertDecode(t, []DecodingAssert{
+		{MustHexDecodeString("0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f0b"),
+			newTestAddress(),
+		},
 	})
 }

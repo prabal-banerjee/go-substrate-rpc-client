@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,23 +40,28 @@ var exampleRuntimeVersionAPI = RuntimeVersionAPI{
 }
 
 func TestRuntimeVersion_Encode_Decode(t *testing.T) {
-	enc, err := EncodeToBytes(exampleRuntimeVersion)
+	enc, err := Encode(exampleRuntimeVersion)
 	assert.NoError(t, err)
 
 	var output RuntimeVersion
-	err = DecodeFromBytes(enc, &output)
+	err = Decode(enc, &output)
 	assert.NoError(t, err)
 
 	assert.Equal(t, exampleRuntimeVersion, output)
 }
 
 func TestRuntimeVersionAPI_Encode_Decode(t *testing.T) {
-	enc, err := EncodeToBytes(exampleRuntimeVersionAPI)
+	enc, err := Encode(exampleRuntimeVersionAPI)
 	assert.NoError(t, err)
 
 	var output RuntimeVersionAPI
-	err = DecodeFromBytes(enc, &output)
+	err = Decode(enc, &output)
 	assert.NoError(t, err)
 
 	assert.Equal(t, exampleRuntimeVersionAPI, output)
+}
+
+func TestRuntimeVersionAPI_JSONMarshalUnmarshal(t *testing.T) {
+	r := exampleRuntimeVersionAPI
+	AssertJSONRoundTrip(t, &r)
 }

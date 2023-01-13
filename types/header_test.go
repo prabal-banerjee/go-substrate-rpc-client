@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
 )
 
 var exampleHeader = Header{
@@ -39,36 +41,44 @@ var exampleHeader = Header{
 		{IsSeal: true, AsSeal: Seal{ConsensusEngineID: 11, Bytes: Bytes{12, 13, 14}}},
 		{IsPreRuntime: true, AsPreRuntime: PreRuntime{ConsensusEngineID: 13, Bytes: Bytes{14, 15, 16}}},
 	},
-	AppDataLookup: DataLookup{
-		Size: 1,
-		Index: []Tuple{
-			Tuple{Start: 0, Offset: 1},
-		},
-	},
 }
 
+var (
+	headerFuzzOpts = digestItemFuzzOpts
+)
+
+AppDataLookup: DataLookup{
+	Size: 1,
+	Index: []Tuple{
+		Tuple{Start: 0, Offset: 1},
+	},
+},
+
 func TestHeader_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, exampleHeader)
+	AssertRoundtrip(t, exampleHeader)
+	AssertRoundTripFuzz[Header](t, 100, headerFuzzOpts...)
+	AssertDecodeNilData[Header](t)
+	AssertEncodeEmptyObj[Header](t, 98)
 }
 
 func TestHeader_EncodedLength(t *testing.T) {
-	assertEncodedLength(t, []encodedLengthAssert{{exampleHeader, 184}})
+	AssertEncodedLength(t, []EncodedLengthAssert{{exampleHeader, 184}})
 }
 
 func TestHeader_Encode(t *testing.T) {
-	assertEncode(t, []encodingAssert{
-		{exampleHeader, MustHexDecodeString("0x0102030405000000000000000000000000000000000000000000000000000000a802030405060000000000000000000000000000000000000000000000000000000304050607000000000000000000000000000000000000000000000000000000100102030404000100140008040502060700000000000000000000000000000000000000000000000000000000000004090000000c0a0b0c050b0000000c0c0d0e060d0000000c0e0f1001000000040000000001000000")}, //nolint:lll
+	AssertEncode(t, []EncodingAssert{
+		{exampleHeader, MustHexDecodeString("0x0102030405000000000000000000000000000000000000000000000000000000a802030405060000000000000000000000000000000000000000000000000000000304050607000000000000000000000000000000000000000000000000000000140008040502060700000000000000000000000000000000000000000000000000000000000004090000000c0a0b0c050b0000000c0c0d0e060d0000000c0e0f10")}, //nolint:lll
 	})
 }
 
 func TestHeader_Hex(t *testing.T) {
-	assertEncodeToHex(t, []encodeToHexAssert{
-		{exampleHeader, "0x0102030405000000000000000000000000000000000000000000000000000000a802030405060000000000000000000000000000000000000000000000000000000304050607000000000000000000000000000000000000000000000000000000100102030404000100140008040502060700000000000000000000000000000000000000000000000000000000000004090000000c0a0b0c050b0000000c0c0d0e060d0000000c0e0f1001000000040000000001000000"}, //nolint:lll
+	AssertEncodeToHex(t, []EncodeToHexAssert{
+		{exampleHeader, "0x0102030405000000000000000000000000000000000000000000000000000000a802030405060000000000000000000000000000000000000000000000000000000304050607000000000000000000000000000000000000000000000000000000140008040502060700000000000000000000000000000000000000000000000000000000000004090000000c0a0b0c050b0000000c0c0d0e060d0000000c0e0f10"}, //nolint:lll
 	})
 }
 
 func TestHeader_Eq(t *testing.T) {
-	assertEq(t, []eqAssert{
+	AssertEq(t, []EqAssert{
 		{exampleHeader, exampleHeader, true},
 		{exampleHeader, NewBytes(hash64), false},
 		{exampleHeader, NewBool(false), false},

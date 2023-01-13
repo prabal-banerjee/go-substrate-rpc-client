@@ -20,19 +20,20 @@ import (
 	"testing"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestState_GetStorageSizeLatest(t *testing.T) {
-	key := types.NewStorageKey(types.MustHexDecodeString("0x3a636f6465"))
-	size, err := state.GetStorageSizeLatest(key)
+	key := types.NewStorageKey(codec.MustHexDecodeString("0x3a636f6465"))
+	size, err := testState.GetStorageSizeLatest(key)
 	assert.NoError(t, err)
 	assert.Equal(t, mockSrv.storageSize, size)
 }
 
 func TestState_GetStorageSize(t *testing.T) {
-	key := types.NewStorageKey(types.MustHexDecodeString("0x3a636f6465"))
-	size, err := state.GetStorageSize(key, mockSrv.blockHashLatest)
+	key := types.NewStorageKey(codec.MustHexDecodeString("0x3a636f6465"))
+	size, err := testState.GetStorageSize(key, mockSrv.blockHashLatest)
 	assert.NoError(t, err)
 	assert.Equal(t, mockSrv.storageSize, size)
 }

@@ -3,3 +3,5 @@
 vendor
 playground
 /coverage.txt
+types/test/test_data
+revive.toml

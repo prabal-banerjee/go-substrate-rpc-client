@@ -1,3 +1,19 @@
+// Go Substrate RPC Client (GSRPC) provides APIs and types around Polkadot and any Substrate-based chain RPC calls
+//
+// Copyright 2019 Centrifuge GmbH
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package types_test
 
 import (
@@ -5,6 +21,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,12 +29,12 @@ import (
 func TestMetadataV14EncodeDecodeRoundtrip(t *testing.T) {
 	// Decode the metadata
 	var metadata Metadata
-	err := DecodeFromHexString(MetadataV14Data, &metadata)
+	err := DecodeFromHex(MetadataV14Data, &metadata)
 	assert.EqualValues(t, metadata.Version, 14)
 	assert.NoError(t, err)
 
 	// Now encode it
-	encoded, err := EncodeToHexString(metadata)
+	encoded, err := EncodeToHex(metadata)
 	assert.NoError(t, err)
 
 	// Verify the encoded metadata equals the original one
@@ -26,7 +43,7 @@ func TestMetadataV14EncodeDecodeRoundtrip(t *testing.T) {
 	// Verify that decoding the encoded metadata
 	// equals the decoded original metadata
 	var decodedMetadata Metadata
-	err = DecodeFromHexString(encoded, &decodedMetadata)
+	err = DecodeFromHex(encoded, &decodedMetadata)
 	assert.NoError(t, err)
 	assert.EqualValues(t, metadata, decodedMetadata)
 }
@@ -35,7 +52,7 @@ func TestMetadataV14EncodeDecodeRoundtrip(t *testing.T) {
 
 func TestMetadataV14_TestFindCallIndexWithUnknownFunction(t *testing.T) {
 	var metadata Metadata
-	err := DecodeFromHexString(MetadataV14Data, &metadata)
+	err := DecodeFromHex(MetadataV14Data, &metadata)
 	assert.EqualValues(t, metadata.Version, 14)
 	assert.NoError(t, err)
 
@@ -46,18 +63,18 @@ func TestMetadataV14_TestFindCallIndexWithUnknownFunction(t *testing.T) {
 // Verify that we can find the index of a valid call
 func TestMetadataV14FindCallIndex(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 	index, err := meta.FindCallIndex("Balances.transfer")
 	assert.NoError(t, err)
-	assert.Equal(t, index, CallIndex{SectionIndex: 5, MethodIndex: 0})
+	assert.Equal(t, index, CallIndex{SectionIndex: 6, MethodIndex: 0})
 }
 
 // Verify that we get an error when querying for an invalid
 // call with FindCallIndex.
 func TestMetadataV14FindCallIndexNonExistent(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 	_, err = meta.FindCallIndex("Doesnt.Exist")
 	assert.Error(t, err)
@@ -66,10 +83,10 @@ func TestMetadataV14FindCallIndexNonExistent(t *testing.T) {
 // Verify that we obtain the right modName, varName pair for a given Event id
 func TestMetadataV14FindEventNamesForEventID(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 
-	modName, varName, err := meta.FindEventNamesForEventID(EventID{5, 2})
+	modName, varName, err := meta.FindEventNamesForEventID(EventID{6, 2})
 	assert.NoError(t, err)
 	assert.Equal(t, modName, NewText("Balances"))
 	assert.Equal(t, varName, NewText("Transfer"))
@@ -78,7 +95,7 @@ func TestMetadataV14FindEventNamesForEventID(t *testing.T) {
 // Verify that we get an error when passing an invalid module ID
 func TestMetadataV14FindEventNamesInvalidModuleID(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 
 	_, _, err = meta.FindEventNamesForEventID(EventID{100, 2})
@@ -88,7 +105,7 @@ func TestMetadataV14FindEventNamesInvalidModuleID(t *testing.T) {
 // Verify that we get an error when passing an invalid event ID
 func TestMetadataV14FindEventNamesInvalidEventID(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 
 	_, _, err = meta.FindEventNamesForEventID(EventID{5, 42})
@@ -97,7 +114,7 @@ func TestMetadataV14FindEventNamesInvalidEventID(t *testing.T) {
 
 func TestMetadataV14FindStorageEntryMetadata(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 
 	_, err = meta.FindStorageEntryMetadata("System", "Account")
@@ -108,7 +125,7 @@ func TestMetadataV14FindStorageEntryMetadata(t *testing.T) {
 // the given module can't be found.
 func TestMetadataV14FindStorageEntryMetadataInvalidModule(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 
 	_, err = meta.FindStorageEntryMetadata("SystemZ", "Account")
@@ -119,7 +136,7 @@ func TestMetadataV14FindStorageEntryMetadataInvalidModule(t *testing.T) {
 // it doesn't find a storage within an existing module.
 func TestMetadataV14FindStorageEntryMetadataInvalidStorage(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	assert.NoError(t, err)
 
 	_, err = meta.FindStorageEntryMetadata("System", "Accountz")
@@ -128,7 +145,7 @@ func TestMetadataV14FindStorageEntryMetadataInvalidStorage(t *testing.T) {
 
 func TestMetadataV14ExistsModuleMetadata(t *testing.T) {
 	var meta Metadata
-	err := DecodeFromHexString(MetadataV14Data, &meta)
+	err := DecodeFromHex(MetadataV14Data, &meta)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,11 +166,11 @@ func TestMetadataV14PalletEmpty(t *testing.T) {
 		Index:      42,
 	}
 
-	encoded, err := EncodeToBytes(pallet)
+	encoded, err := Encode(pallet)
 	assert.NoError(t, err)
 
 	var encodedPallets PalletMetadataV14
-	err = DecodeFromBytes(encoded, &encodedPallets)
+	err = Decode(encoded, &encodedPallets)
 	assert.NoError(t, err)
 
 	// Verify they are the same value
@@ -230,11 +247,11 @@ func TestMetadataV14PalletFilled(t *testing.T) {
 		Index:     42,
 	}
 
-	encoded, err := EncodeToBytes(pallet)
+	encoded, err := Encode(pallet)
 	assert.NoError(t, err)
 
 	var encodedPallets PalletMetadataV14
-	err = DecodeFromBytes(encoded, &encodedPallets)
+	err = Decode(encoded, &encodedPallets)
 	assert.NoError(t, err)
 
 	// Verify they are the same
@@ -267,11 +284,32 @@ func TestSi1TypeDecodeEncode(t *testing.T) {
 	}
 
 	// Verify that (decode . encode) equals the original value
-	encoded, err := EncodeToHexString(ti)
+	encoded, err := EncodeToHex(ti)
 	assert.NoError(t, err)
 
 	var decoded Si1Type
-	DecodeFromHexString(encoded, &decoded)
+	DecodeFromHex(encoded, &decoded)
 
 	assert.Equal(t, ti, decoded)
+}
+
+func TestMetadataV14_FindError(t *testing.T) {
+	var meta Metadata
+	err := DecodeFromHex(MetadataV14Data, &meta)
+	assert.NoError(t, err)
+
+	// System - SpecVersionNeedsToIncrease
+	metaErr, err := meta.FindError(0, [4]U8{1})
+	assert.NoError(t, err)
+	assert.NotNil(t, metaErr)
+
+	// System - no error at index
+	metaErr, err = meta.FindError(0, [4]U8{6})
+	assert.Error(t, err)
+	assert.Nil(t, metaErr)
+
+	// No module at index
+	metaErr, err = meta.FindError(200, [4]U8{0})
+	assert.Error(t, err)
+	assert.Nil(t, metaErr)
 }

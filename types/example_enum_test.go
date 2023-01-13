@@ -21,7 +21,7 @@ import (
 	"reflect"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
-	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 )
 
 // PhaseEnum is an enum example. Since Go has no enums, it is implemented as a struct with flags for each
@@ -81,13 +81,13 @@ func ExampleExampleEnum_applyExtrinsic() {
 		AsApplyExtrinsic: 1234,
 	}
 
-	enc, err := EncodeToHexString(applyExtrinsic)
+	enc, err := EncodeToHex(applyExtrinsic)
 	if err != nil {
 		panic(err)
 	}
 
 	var dec PhaseEnum
-	err = DecodeFromHexString(enc, &dec)
+	err = DecodeFromHex(enc, &dec)
 	if err != nil {
 		panic(err)
 	}
@@ -100,13 +100,13 @@ func ExampleExampleEnum_finalization() {
 		IsFinalization: true,
 	}
 
-	enc, err := EncodeToHexString(finalization)
+	enc, err := EncodeToHex(finalization)
 	if err != nil {
 		panic(err)
 	}
 
 	var dec PhaseEnum
-	err = DecodeFromHexString(enc, &dec)
+	err = DecodeFromHex(enc, &dec)
 	if err != nil {
 		panic(err)
 	}

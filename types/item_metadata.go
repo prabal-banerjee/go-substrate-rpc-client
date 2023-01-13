@@ -16,25 +16,34 @@
 
 package types
 
-import (
-	"testing"
+import "github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 
-	"github.com/stretchr/testify/assert"
-)
+type ItemMetadata struct {
+	Deposit  U128
+	Data     Bytes
+	IsFrozen bool
+}
 
-func TestHexDecodeString(t *testing.T) {
-	s := HexEncodeToString([]byte{0, 128, 255})
-	assert.Equal(t, "0x0080ff", s)
+func (i *ItemMetadata) Decode(decoder scale.Decoder) error {
+	if err := decoder.Decode(&i.Deposit); err != nil {
+		return err
+	}
 
-	b, err := HexDecodeString(s)
-	assert.NoError(t, err)
-	assert.Equal(t, []byte{0, 128, 255}, b)
+	if err := decoder.Decode(&i.Data); err != nil {
+		return err
+	}
 
-	b, err = HexDecodeString("0xa")
-	assert.NoError(t, err)
-	assert.Equal(t, []byte{10}, b)
+	return decoder.Decode(&i.IsFrozen)
+}
 
-	b, err = HexDecodeString("f")
-	assert.NoError(t, err)
-	assert.Equal(t, []byte{15}, b)
+func (i ItemMetadata) Encode(encoder scale.Encoder) error {
+	if err := encoder.Encode(i.Deposit); err != nil {
+		return err
+	}
+
+	if err := encoder.Encode(i.Data); err != nil {
+		return err
+	}
+
+	return encoder.Encode(i.IsFrozen)
 }

@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
-
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -33,14 +33,14 @@ func ExampleExampleTuple() {
 
 	doc := Doc{12, blake2b.Sum256([]byte("My document"))}
 
-	encoded, err := EncodeToHexString(doc)
+	encoded, err := EncodeToHex(doc)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(encoded)
 
 	var decoded Doc
-	err = DecodeFromHexString(encoded, &decoded)
+	err = DecodeFromHex(encoded, &decoded)
 	if err != nil {
 		panic(err)
 	}

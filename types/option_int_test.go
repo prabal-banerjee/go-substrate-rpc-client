@@ -20,28 +20,90 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
+	"github.com/stretchr/testify/assert"
 )
 
+func TestOptionI8_OptionMethods(t *testing.T) {
+	o := NewOptionI8Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, I8(0), v)
+}
+
+func TestOptionI16_OptionMethods(t *testing.T) {
+	o := NewOptionI16Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, I16(0), v)
+}
+
+func TestOptionI32_OptionMethods(t *testing.T) {
+	o := NewOptionI32Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, I32(0), v)
+}
+
+func TestOptionI64_OptionMethods(t *testing.T) {
+	o := NewOptionI64Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, I64(0), v)
+}
+
 func TestOptionI8_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionI8(NewI8(7)))
-	assertRoundtrip(t, NewOptionI8(NewI8(0)))
-	assertRoundtrip(t, NewOptionI8Empty())
+	AssertRoundtrip(t, NewOptionI8(NewI8(7)))
+	AssertRoundtrip(t, NewOptionI8(NewI8(0)))
+	AssertRoundtrip(t, NewOptionI8Empty())
 }
 
 func TestOptionI16_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionI16(NewI16(14)))
-	assertRoundtrip(t, NewOptionI16(NewI16(0)))
-	assertRoundtrip(t, NewOptionI16Empty())
+	AssertRoundtrip(t, NewOptionI16(NewI16(14)))
+	AssertRoundtrip(t, NewOptionI16(NewI16(0)))
+	AssertRoundtrip(t, NewOptionI16Empty())
 }
 
 func TestOptionI32_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionI32(NewI32(21)))
-	assertRoundtrip(t, NewOptionI32(NewI32(0)))
-	assertRoundtrip(t, NewOptionI32Empty())
+	AssertRoundtrip(t, NewOptionI32(NewI32(21)))
+	AssertRoundtrip(t, NewOptionI32(NewI32(0)))
+	AssertRoundtrip(t, NewOptionI32Empty())
 }
 
 func TestOptionI64_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionI64(NewI64(28)))
-	assertRoundtrip(t, NewOptionI64(NewI64(0)))
-	assertRoundtrip(t, NewOptionI64Empty())
+	AssertRoundtrip(t, NewOptionI64(NewI64(28)))
+	AssertRoundtrip(t, NewOptionI64(NewI64(0)))
+	AssertRoundtrip(t, NewOptionI64Empty())
 }

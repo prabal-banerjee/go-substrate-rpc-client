@@ -17,31 +17,132 @@
 package types_test
 
 import (
+	"math/big"
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
+	fuzz "github.com/google/gofuzz"
+	"github.com/stretchr/testify/assert"
+)
+
+var (
+	optionU128FuzzOpts = []FuzzOpt{
+		WithFuzzFuncs(func(o *OptionU128, c fuzz.Continue) {
+			if c.RandBool() {
+				*o = NewOptionU128Empty()
+				return
+			}
+
+			var u U128
+
+			c.Fuzz(&u)
+
+			*o = NewOptionU128(u)
+		}),
+	}
 )
 
 func TestOptionU8_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionU8(NewU8(7)))
-	assertRoundtrip(t, NewOptionU8(NewU8(0)))
-	assertRoundtrip(t, NewOptionU8Empty())
+	AssertRoundTripFuzz[OptionU128](t, 100, optionU128FuzzOpts...)
+	AssertEncodeEmptyObj[OptionU128](t, 1)
+}
+
+func TestOptionU8_OptionMethods(t *testing.T) {
+	o := NewOptionU8Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, U8(0), v)
+}
+
+func TestOptionU16_OptionMethods(t *testing.T) {
+	o := NewOptionU16Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, U16(0), v)
+}
+
+func TestOptionU32_OptionMethods(t *testing.T) {
+	o := NewOptionU32Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, U32(0), v)
+}
+
+func TestOptionU64_OptionMethods(t *testing.T) {
+	o := NewOptionU64Empty()
+	o.SetSome(11)
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, U64(0), v)
+}
+
+func TestOptionU128_OptionMethods(t *testing.T) {
+	o := NewOptionU128Empty()
+	o.SetSome(NewU128(*big.NewInt(11)))
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, NewU128(*big.NewInt(0)), v)
 }
 
 func TestOptionU16_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionU16(NewU16(14)))
-	assertRoundtrip(t, NewOptionU16(NewU16(0)))
-	assertRoundtrip(t, NewOptionU16Empty())
+	AssertRoundtrip(t, NewOptionU16(NewU16(14)))
+	AssertRoundtrip(t, NewOptionU16(NewU16(0)))
+	AssertRoundtrip(t, NewOptionU16Empty())
 }
 
 func TestOptionU32_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionU32(NewU32(21)))
-	assertRoundtrip(t, NewOptionU32(NewU32(0)))
-	assertRoundtrip(t, NewOptionU32Empty())
+	AssertRoundtrip(t, NewOptionU32(NewU32(21)))
+	AssertRoundtrip(t, NewOptionU32(NewU32(0)))
+	AssertRoundtrip(t, NewOptionU32Empty())
 }
 
 func TestOptionU64_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionU64(NewU64(28)))
-	assertRoundtrip(t, NewOptionU64(NewU64(0)))
-	assertRoundtrip(t, NewOptionU64Empty())
+	AssertRoundtrip(t, NewOptionU64(NewU64(28)))
+	AssertRoundtrip(t, NewOptionU64(NewU64(0)))
+	AssertRoundtrip(t, NewOptionU64Empty())
+}
+
+func TestOptionU128_EncodeDecode(t *testing.T) {
+	AssertRoundtrip(t, NewOptionU128(NewU128(*big.NewInt(123))))
+	AssertRoundtrip(t, NewOptionU128(NewU128(*big.NewInt(0))))
+	AssertRoundtrip(t, NewOptionU128Empty())
 }

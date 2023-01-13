@@ -24,9 +24,10 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/client"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpcmocksrv"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 )
 
-var state *State
+var testState State
 
 func TestMain(m *testing.M) {
 	s := rpcmocksrv.New()
@@ -41,7 +42,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	state = NewState(cl)
+	testState = NewState(cl)
 
 	os.Exit(m.Run())
 }
@@ -150,6 +151,17 @@ func (s *MockSrv) QueryStorage(keys []string, startBlock string, block *string) 
 	return mockSrv.storageChangeSets
 }
 
+func (s *MockSrv) QueryStorageAt(keys []string, hash *string) []types.StorageChangeSet {
+	if len(keys) != 1 {
+		panic("keys need to have len of 1 in tests")
+	}
+	if keys[0] != mockSrv.storageKeyHex {
+		panic("key not found")
+	}
+
+	return mockSrv.storageChangeSets
+}
+
 // func (s *MockSrv) SubscribeStorage(args []string) {
 // 	fmt.Println("Hit")
 // }
@@ -178,8 +190,8 @@ var mockSrv = MockSrv{
 	childStorageTrieKeyHex:   "0x81914b11321c39f8728981888024196b616142cc0369234775b20b539aaf29d0",
 	childStorageTrieValueHex: "0x81914b11321c39f8728981888024196b616142cc0369234775b20b539aaf29d09c1705d98d059a2d7f5faa89277ee5d0a38cc455f8b5fdf38fda471e988cb8a921000000", //nolint:lll
 	childStorageTrieValue: ChildStorageTrieTestVal{
-		Key:     types.NewHash(types.MustHexDecodeString("0x81914b11321c39f8728981888024196b616142cc0369234775b20b539aaf29d0")), //nolint:lll
-		OtherID: types.NewHash(types.MustHexDecodeString("0x9c1705d98d059a2d7f5faa89277ee5d0a38cc455f8b5fdf38fda471e988cb8a9")), //nolint:lll
+		Key:     types.NewHash(codec.MustHexDecodeString("0x81914b11321c39f8728981888024196b616142cc0369234775b20b539aaf29d0")), //nolint:lll
+		OtherID: types.NewHash(codec.MustHexDecodeString("0x9c1705d98d059a2d7f5faa89277ee5d0a38cc455f8b5fdf38fda471e988cb8a9")), //nolint:lll
 		Value:   types.NewU32(0x21),
 	},
 	childStorageTrieSize:    68,

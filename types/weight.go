@@ -17,9 +17,17 @@
 package types
 
 // Weight is a numeric range of a transaction weight
-type Weight uint64
+type Weight struct {
+	// The weight of computational time used based on some reference hardware.
+	RefTime UCompact
+	// The weight of storage space used by proof of validity.
+	ProofSize UCompact
+}
 
 // NewWeight creates a new Weight type
-func NewWeight(u uint64) Weight {
-	return Weight(u)
+func NewWeight(refTime UCompact, proofSize UCompact) Weight {
+	return Weight{
+		RefTime:   refTime,
+		ProofSize: proofSize,
+	}
 }

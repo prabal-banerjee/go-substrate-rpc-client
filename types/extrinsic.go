@@ -26,6 +26,7 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
 )
 
 const (
@@ -71,38 +72,38 @@ func (e *Extrinsic) UnmarshalJSON(bz []byte) error {
 	// extrinsics didn't have the length, cater for both approaches. This is very
 	// inconsistent with any other `Vec<u8>` implementation
 	var l UCompact
-	err := DecodeFromHexString(tmp, &l)
+	err := codec.DecodeFromHex(tmp, &l)
 	if err != nil {
 		return err
 	}
 
-	prefix, err := EncodeToHexString(l)
+	prefix, err := codec.EncodeToHex(l)
 	if err != nil {
 		return err
 	}
 
 	// determine whether length prefix is there
 	if strings.HasPrefix(tmp, prefix) {
-		return DecodeFromHexString(tmp, e)
+		return codec.DecodeFromHex(tmp, e)
 	}
 
 	// not there, prepend with compact encoded length prefix
-	dec, err := HexDecodeString(tmp)
+	dec, err := codec.HexDecodeString(tmp)
 	if err != nil {
 		return err
 	}
 	length := NewUCompactFromUInt(uint64(len(dec)))
-	bprefix, err := EncodeToBytes(length)
+	bprefix, err := codec.Encode(length)
 	if err != nil {
 		return err
 	}
-	prefixed := append(bprefix, dec...)
-	return DecodeFromBytes(prefixed, e)
+	bprefix = append(bprefix, dec...)
+	return codec.Decode(bprefix, e)
 }
 
 // MarshalJSON returns a JSON encoded byte array of Extrinsic
 func (e Extrinsic) MarshalJSON() ([]byte, error) {
-	s, err := EncodeToHexString(e)
+	s, err := codec.EncodeToHex(e)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +126,7 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, o SignatureOptions) error
 		return fmt.Errorf("unsupported extrinsic version: %v (isSigned: %v, type: %v)", e.Version, e.IsSigned(), e.Type())
 	}
 
-	mb, err := EncodeToBytes(e.Method)
+	mb, err := codec.Encode(e.Method)
 	if err != nil {
 		return err
 	}
@@ -149,7 +150,11 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, o SignatureOptions) error
 		AppID:       o.AppID,
 	}
 
-	signerPubKey := NewMultiAddressFromAccountID(signer.PublicKey)
+	signerPubKey, err := NewMultiAddressFromAccountID(signer.PublicKey)
+
+	if err != nil {
+		return err
+	}
 
 	sig, err := payload.Sign(signer)
 	if err != nil {
@@ -269,7 +274,7 @@ func NewCall(m *Metadata, call string, args ...interface{}) (Call, error) {
 
 	var a []byte
 	for _, arg := range args {
-		e, err := EncodeToBytes(arg)
+		e, err := codec.Encode(arg)
 		if err != nil {
 			return Call{}, err
 		}

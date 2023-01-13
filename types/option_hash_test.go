@@ -20,24 +20,86 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
+	"github.com/stretchr/testify/assert"
 )
 
+func TestOptionHash_OptionMethods(t *testing.T) {
+	o := NewOptionHashEmpty()
+	o.SetSome(NewHash(hash20))
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, Hash{}, v)
+}
+
+func TestOptionH160_OptionMethods(t *testing.T) {
+	o := NewOptionH160Empty()
+	o.SetSome(NewH160(hash20))
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, H160{}, v)
+}
+
+func TestOptionH256_OptionMethods(t *testing.T) {
+	o := NewOptionH256Empty()
+	o.SetSome(NewH256(hash20))
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, H256{}, v)
+}
+
+func TestOptionH512_OptionMethods(t *testing.T) {
+	o := NewOptionH512Empty()
+	o.SetSome(NewH512(hash20))
+
+	ok, v := o.Unwrap()
+	assert.True(t, ok)
+	assert.NotNil(t, v)
+
+	o.SetNone()
+
+	ok, v = o.Unwrap()
+	assert.False(t, ok)
+	assert.Equal(t, H512{}, v)
+}
+
 func TestOptionH160_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionH160(NewH160(hash20)))
-	assertRoundtrip(t, NewOptionH160Empty())
+	AssertRoundtrip(t, NewOptionH160(NewH160(hash20)))
+	AssertRoundtrip(t, NewOptionH160Empty())
 }
 
 func TestOptionH256_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionH256(NewH256(hash32)))
-	assertRoundtrip(t, NewOptionH256Empty())
+	AssertRoundtrip(t, NewOptionH256(NewH256(hash32)))
+	AssertRoundtrip(t, NewOptionH256Empty())
 }
 
 func TestOptionH512_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionH512(NewH512(hash64)))
-	assertRoundtrip(t, NewOptionH512Empty())
+	AssertRoundtrip(t, NewOptionH512(NewH512(hash64)))
+	AssertRoundtrip(t, NewOptionH512Empty())
 }
 
 func TestOptionHash_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, NewOptionHash(NewHash(hash32)))
-	assertRoundtrip(t, NewOptionHashEmpty())
+	AssertRoundtrip(t, NewOptionHash(NewHash(hash32)))
+	AssertRoundtrip(t, NewOptionHashEmpty())
 }

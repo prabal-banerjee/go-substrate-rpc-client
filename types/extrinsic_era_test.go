@@ -20,28 +20,50 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
+	fuzz "github.com/google/gofuzz"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExtrinsicEra_Immortal(t *testing.T) {
 	var e ExtrinsicEra
-	err := DecodeFromHexString("0x00", &e)
+	err := DecodeFromHex("0x00", &e)
 	assert.NoError(t, err)
 	assert.Equal(t, ExtrinsicEra{IsImmortalEra: true}, e)
 }
 
 func TestExtrinsicEra_Mortal(t *testing.T) {
 	var e ExtrinsicEra
-	err := DecodeFromHexString("0x4e9c", &e)
+	err := DecodeFromHex("0x4e9c", &e)
 	assert.NoError(t, err)
 	assert.Equal(t, ExtrinsicEra{
 		IsMortalEra: true, AsMortalEra: MortalEra{78, 156},
 	}, e)
 }
 
+var (
+	extrinsicEraFuzzOpts = []FuzzOpt{
+		WithFuzzFuncs(func(e *ExtrinsicEra, c fuzz.Continue) {
+			if c.RandBool() {
+				e.IsImmortalEra = true
+				return
+			}
+
+			e.IsMortalEra = true
+			e.AsMortalEra = MortalEra{
+				First:  1,
+				Second: 2,
+			}
+		}),
+	}
+)
+
 func TestExtrinsicEra_EncodeDecode(t *testing.T) {
 	var e ExtrinsicEra
-	err := DecodeFromHexString("0x4e9c", &e)
+	err := DecodeFromHex("0x4e9c", &e)
 	assert.NoError(t, err)
-	assertRoundtrip(t, e)
+	AssertRoundtrip(t, e)
+
+	AssertRoundTripFuzz[ExtrinsicEra](t, 1000, extrinsicEraFuzzOpts...)
 }

@@ -20,6 +20,8 @@ import (
 	"testing"
 
 	. "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/codec"
+	. "github.com/centrifuge/go-substrate-rpc-client/v4/types/test_utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -115,7 +117,7 @@ var exampleDoubleMapTypeV10 = DoubleMapTypeV10{
 }
 
 func TestMetadataV10_EncodeDecode(t *testing.T) {
-	assertRoundtrip(t, exampleMetadataV10)
+	AssertRoundtrip(t, exampleMetadataV10)
 }
 
 func TestFindEventNamesForEventIDV10(t *testing.T) {
@@ -134,7 +136,7 @@ func TestFindStorageEntryMetadataV10(t *testing.T) {
 func TestMetadataV10_Decode(t *testing.T) {
 	metadata := NewMetadataV10()
 
-	err := DecodeFromBytes(MustHexDecodeString(ExamplaryMetadataV10String), metadata)
+	err := Decode(MustHexDecodeString(ExamplaryMetadataV10String), metadata)
 	assert.NoError(t, err)
 
 	assert.Equal(t, *ExamplaryMetadataV10, *metadata)
@@ -143,7 +145,7 @@ func TestMetadataV10_Decode(t *testing.T) {
 func TestMetadataV10Polkadot_Decode(t *testing.T) {
 	metadata := NewMetadataV10()
 
-	err := DecodeFromBytes(MustHexDecodeString(ExamplaryMetadataV10PolkadotString), metadata)
+	err := Decode(MustHexDecodeString(ExamplaryMetadataV10PolkadotString), metadata)
 	assert.NoError(t, err)
 
 	assert.Equal(t, *ExamplaryMetadataV10Polkadot, *metadata)
