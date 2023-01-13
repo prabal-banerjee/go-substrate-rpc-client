@@ -41,8 +41,10 @@ var exampleHeader = Header{
 	},
 	AppDataLookup: DataLookup{
 		Size: 1,
-		Index: []Tuple{
-			Tuple{Start: 0, Offset: 1},
+		Index: [][2]U32{
+			[2]U32{
+				0, 1,
+			},
 		},
 	},
 }

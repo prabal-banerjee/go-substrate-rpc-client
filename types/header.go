@@ -25,14 +25,9 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 )
 
-type Tuple struct {
-	Start  U32
-	Offset U32
-}
-
 type DataLookup struct {
-	Size  U32     `json:"size"`
-	Index []Tuple `json:"index"`
+	Size  U32      `json:"size"`
+	Index [][2]U32 `json:"index"`
 }
 
 type KateExtrinsicRoot struct {
