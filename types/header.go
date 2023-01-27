@@ -58,12 +58,12 @@ type VTHeaderExtension struct {
 }
 
 type HeaderExtensionEnum struct {
-	V1    *V1HeaderExtension `json:"V1"`
-	VTest *VTHeaderExtension `json:"VTest"`
+	V1    V1HeaderExtension `json:"V1"`
+	VTest VTHeaderExtension `json:"VTest"`
 }
 
 type HeaderExtension struct {
-	Enum *HeaderExtensionEnum
+	Enum HeaderExtensionEnum `json:"headerextension"`
 }
 
 type Header struct {

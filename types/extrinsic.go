@@ -147,7 +147,7 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, o SignatureOptions) error
 			BlockHash:   o.BlockHash,
 		},
 		TransactionVersion: o.TransactionVersion,
-		AppID:       o.AppID,
+		AppID:              o.AppID,
 	}
 
 	signerPubKey, err := NewMultiAddressFromAccountID(signer.PublicKey)
@@ -320,6 +320,11 @@ func (m CallIndex) Encode(encoder scale.Encoder) error {
 
 // Args are the encoded arguments for a Call
 type Args []byte
+
+// Write implements io.Writer
+func (Args) Write(p []byte) (n int, err error) {
+	panic("unimplemented")
+}
 
 // Encode implements encoding for Args, which just unwraps the bytes of Args
 func (a Args) Encode(encoder scale.Encoder) error {
