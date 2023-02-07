@@ -33,7 +33,7 @@ import (
 var subscriptionsAPI *gsrpc.SubstrateAPI
 
 func TestMain(m *testing.M) {
-	localApi, err := gsrpc.NewSubstrateAPI(config.Default().RPCURL)
+	localApi, err := gsrpc.NewSubstrateAPI("ws://127.0.0.1:9944")
 	subscriptionsAPI = localApi
 	assert.NoError(&testing.T{}, err)
 }

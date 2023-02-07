@@ -63,7 +63,7 @@ type HeaderExtensionEnum struct {
 }
 
 type HeaderExtension struct {
-	Enum HeaderExtensionEnum `json:"headerextension"`
+	Enum HeaderExtensionEnum `json:"HeaderExtension"`
 }
 
 type Header struct {
@@ -110,4 +110,14 @@ func (b *BlockNumber) Decode(decoder scale.Decoder) error {
 	}
 	*b = BlockNumber(u.Uint64())
 	return err
+}
+
+func (a AppId) Decode(decoder scale.Decoder) error {
+	u := UCompact(a)
+	return u.Decode(decoder)
+}
+
+func (a AppId) Encode(encoder scale.Encoder) error {
+	u := UCompact(a)
+	return u.Encode(encoder)
 }

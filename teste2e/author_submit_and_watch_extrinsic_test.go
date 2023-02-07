@@ -79,6 +79,7 @@ func TestAuthor_SubmitAndWatchExtrinsic(t *testing.T) {
 			Nonce:              types.NewUCompactFromUInt(uint64(nonce)),
 			SpecVersion:        rv.SpecVersion,
 			Tip:                types.NewUCompactFromUInt(0),
+			AppID:              types.NewUCompactFromUInt(uint64(0)),
 			TransactionVersion: rv.TransactionVersion,
 		}
 
