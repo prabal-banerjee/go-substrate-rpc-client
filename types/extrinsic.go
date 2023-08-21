@@ -146,6 +146,7 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, o SignatureOptions) error
 			GenesisHash: o.GenesisHash,
 			BlockHash:   o.BlockHash,
 		},
+		AppID: o.AppID,
 		TransactionVersion: o.TransactionVersion,
 	}
 
@@ -348,5 +349,6 @@ type SignaturePayload struct {
 	Nonce          UCompact
 	RuntimeVersion RuntimeVersion
 	Tip            UCompact
+	AppID          UCompact
 	Version        uint8
 }
